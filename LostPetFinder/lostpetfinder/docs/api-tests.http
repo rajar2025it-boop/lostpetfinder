@@ -1,0 +1,58 @@
+### 1. Create users
+POST http://localhost:8080/api/users
+Content-Type: application/json
+
+{ "name": "Arun", "email": "arun@example.com", "phone": "9876543210" }
+
+###
+POST http://localhost:8080/api/users
+Content-Type: application/json
+
+{ "name": "Divya", "email": "divya@example.com", "phone": "9123456780" }
+
+### 2. Report a lost pet (user 1)
+POST http://localhost:8080/api/lost-reports
+Content-Type: application/json
+
+{ "userId": 1, "petName": "Bruno", "species": "DOG", "breed": "Labrador", "colour": "Brown",
+  "locality": "Peelamedu", "lastSeenLocation": "Near PSG Tech gate", "lastSeenDate": "2026-09-25",
+  "description": "Red collar" }
+
+### 3. Report a found animal (user 2)
+POST http://localhost:8080/api/found-reports
+Content-Type: application/json
+
+{ "userId": 2, "species": "DOG", "breed": "Labrador", "colour": "brown",
+  "locality": "peelamedu", "foundLocation": "Bus stop", "foundDate": "2026-09-26" }
+
+### 4. Suggest matches for lost report 1  (expect 1 match, score 6)
+GET http://localhost:8080/api/matches/lost/1
+
+### 5. Search by locality
+GET http://localhost:8080/api/lost-reports?locality=peela&status=ACTIVE
+
+### 6. Resolve lost report 1 together with found report 1
+PUT http://localhost:8080/api/lost-reports/1/resolve?foundReportId=1
+
+### 7. EDGE: match suggestions for a resolved report -> 409 Conflict
+GET http://localhost:8080/api/matches/lost/1
+
+### 8. EDGE: resolve again -> 409 Conflict
+PUT http://localhost:8080/api/lost-reports/1/resolve
+
+### 9. EDGE: validation failure -> 400 with fieldErrors
+POST http://localhost:8080/api/lost-reports
+Content-Type: application/json
+
+{ "userId": -1, "species": "DOG", "colour": "", "locality": "Peelamedu",
+  "lastSeenLocation": "x", "lastSeenDate": "2030-01-01" }
+
+### 10. EDGE: unknown user -> 404
+POST http://localhost:8080/api/found-reports
+Content-Type: application/json
+
+{ "userId": 999, "species": "CAT", "colour": "White", "locality": "RS Puram",
+  "foundLocation": "Park", "foundDate": "2026-09-27" }
+
+### 11. Dashboard
+GET http://localhost:8080/api/dashboard
